@@ -38,7 +38,7 @@ struct coordinate
 
 void record();
 void load();
-void Delay(long double);
+void Delay();
 void Move();
 void Food();
 int  Score();
@@ -99,7 +99,7 @@ void load(){
 	printf("loading...");
 	for(r=0;r<=20; r++)
 	{
-		for(q =0 ; q< 10000000 ;q++)
+		for(q =0 ; q< 100 ;q++)
 		{ 
 		printf("%c",177);
 		}
@@ -193,14 +193,13 @@ void Food()
 
 void GotoXY(int x, int y){
 	
-	HANDLE a;
-	COORD  b;
-	fflush(stdout);
-	b.X;
-	b.Y;
-	a = GetStdHandle(STD_OUTPUT_HANDLE); 
-	SetConsoleCursorPosition(a,b);
-	
+	COORD coord;
+	coord.X;
+	coord.Y;
+	 
+	SetConsoleCursorPosition(
+	GetStdHandle(STD_OUTPUT_HANDLE),coord
+	);
 	
 	
 }
@@ -419,13 +418,95 @@ void Bend()
 	
 	if (bend[i].x == bend[i-1].x ) 
 	{
-	  diff = bend[i].y - bend
+	  diff = bend[i].y - bend[i-1].y;
+	  
+	  if(diff < 0) // yukarý hareketi gösteriyor
+	  {
+	  	for ( j = 0; j<(-diff) ; j++)
+	  	{
+	  		body[len].x = bend[i].x;
+	  		body[len].y = bend[i].y + j;
+		  }
+		 GotoXY(body[len].x,body[len].y);
+		 printf("*");
+		 len++;
+		if(len == length) 
+		{
+			break;
+			
+		}
+		
+	  	
+	  }
+	  else if(diff > 0)
+	  {
+	  	
+	  	for ( j = 0; j <= diff ; j++)
+	  	{
+	  		body[len].x = bend[i].x;
+	  		body[len].y = bend[i].y - j;
+		  }
+		 GotoXY(body[len].x,body[len].y);
+		 printf("*");
+		 len++;
+		if(len == length) 
+		{
+			break;
+			
+		}
+	  	
+	  }
+	  
+	  
+	  
 	 
 	
 	
 	}
 	
-	
+	else if (bend[i].y == bend[i-1].y)
+	{
+		diff = bend[i].x - bend[i - 1].x;
+		
+		if(diff<0)
+		{
+		  for ( j = 0; j<(-diff) ; j++)
+	  	{
+	  		body[len].x = bend[i].x +j;
+	  		body[len].y = bend[i].y ;
+		  }
+		 GotoXY(body[len].x,body[len].y);
+		 printf("*");
+		 len++;
+		if(len == length) 
+		{
+			break;
+			
+		}
+		
+		}
+		
+		else if(diff > 0)
+		{
+		
+			for ( j = 0; j <= diff ; j++)
+	  		{
+	  		body[len].x = bend[i].x - j;
+	  		body[len].y = bend[i].y ;
+		  }
+		 GotoXY(body[len].x,body[len].y);
+		 printf("*");
+		 len++;
+		if(len == length) 
+		{
+			break;
+			
+		}
+		}
+		
+		
+		
+	}
 	
 	
 }
@@ -435,4 +516,61 @@ void Bend()
 
 }
 
+
+void Delay() //hýz ayarlama fonksiyonu
+{
+ Score();
+ long double i;
  
+ for( i = 0; i < 10000000; i++){
+ };
+ 
+}
+
+void ExitGame()
+{
+  int i,check = 0;
+  
+  for( i = 4; i < length ; i++)
+  {
+  	 if(body[0].x == body[i].x && body[0].y == body[i].y)
+  	 {
+	 check++;
+	 
+	 if ( i == length || check != 0)
+	 {
+	 	break;
+	 }
+	   
+	
+	}
+  	 
+  	 if( head.x <=10 || head.x >= 70 || head.x <=10 || head.x >= 70 || check != 0 )
+  	 {  
+  	    life--;
+  	 	
+		   if( life >= 0)
+		   {
+		   	  head.x = 25;
+		   	  head.y = 20;
+		   	  head.direction = RIGHT;
+		   	  
+		   	  bend_no = 0;
+		   	  Move();
+		   } else
+		   {
+		   	 system("cls");
+		   	 printf("All lives Finished \n Better Luck Next time");
+		   	 //record();
+		   	 exit(0);
+		   	
+		   }
+  	 	
+  	 	
+	   }
+  	
+  	
+  }
+  
+
+ }  
