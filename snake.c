@@ -57,6 +57,7 @@ int ScoreOnly();
 
 int main(){
 	
+	
 	Print(); // kurallarýn yazýmý
 	system("cls");
 	load(); 
@@ -66,6 +67,7 @@ int main(){
 	head.direction = RIGHT;
 	life = 3;
 	Boarder();
+	Food();
 	bend[0] = head;
 	Move();	
 	
@@ -85,7 +87,9 @@ void Print()
   printf("\tGame instructions: \n");
   printf("\n -> Use arrow keys to move the snake \n");
   printf("\n\n Press any Key to play game");
-  getch();
+  
+  if(getch() == 27) exit(0);
+  
  
   
 
@@ -97,6 +101,7 @@ void load(){
 	int row,col,r,c,q;
 	gotoxy(36,14);
 	printf("loading...");
+	gotoxy(30,15);
 	for(r=0;r<=20; r++)
 	{
 		for(q =0 ; q< 100 ;q++)
@@ -112,8 +117,8 @@ void load(){
 void gotoxy(int x, int y){
 	
 	COORD coord;
-	coord.X;
-	coord.Y;
+	coord.X = x;
+	coord.Y = y;
 	 
 	SetConsoleCursorPosition(
 	GetStdHandle(STD_OUTPUT_HANDLE),coord
@@ -127,14 +132,14 @@ void Boarder(){
 	GotoXY(food.x,food.y);
 	printf("F");
 	
-	for( i = 10; i>71;i++)
+	for( i = 10; i<71;i++)
 	 {
 	 	GotoXY(i,10);
 	 	printf("!");
 	 	GotoXY(i,30);
 	 	printf("!");
 	 }
-	 for( i = 10; i>31;i++)
+	 for( i = 10; i<31;i++)
 	 {
 	 	GotoXY(10,i);
 	 	printf("!");
@@ -193,13 +198,14 @@ void Food()
 
 void GotoXY(int x, int y){
 	
-	COORD coord;
-	coord.X;
-	coord.Y;
-	 
-	SetConsoleCursorPosition(
-	GetStdHandle(STD_OUTPUT_HANDLE),coord
-	);
+	HANDLE a;
+	COORD b;
+	fflush(stdout);
+	b.X = x;
+	b.Y = y;
+	
+	 a = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(a,b);
 	
 	
 }
@@ -224,7 +230,8 @@ void GotoXY(int x, int y){
  	do
  	{
  		Food();
- 		Boarder();
+ 		// Boarder();
+ 		fflush(stdin);
  		len = 0;
  		
  		for(i = 0;i<100;i++)
@@ -235,6 +242,8 @@ void GotoXY(int x, int y){
 		  {
 		  	break;
 		  }
+		  Delay(length);
+		  Boarder();		
 		  		
  		if(head.direction == RIGHT)
 		 { 
@@ -260,31 +269,42 @@ void GotoXY(int x, int y){
  		
     }while(!kbhit);
     a = getch();
-    key = getch();
+    
+    if(key == 27){
+		system("cls");
+		exit(0);
+		
+	}
+    
+	key = getch();
     
     if ((key == RIGHT && head.direction != LEFT && head.direction != RIGHT) ||
 	 	(key == LEFT  && head.direction != LEFT && head.direction != RIGHT) || 
 		(key == UP    && head.direction != UP   && head.direction != DOWN ) ||
 		(key == DOWN  && head.direction != UP   && head.direction != DOWN ) )
-	{
+	{   
+	    bend_no++;
 		bend[bend_no] =head;
 		head.direction = key;
 		
 		if(key == UP)
-		  head.x--;
+		  head.y--;
 		if(key == DOWN)
 		  head.y++;
 		if(key == RIGHT)
 		  head.x++;
 		if(key == LEFT)
-		  head.y--;
+		  head.x--;
 		Move();
 		
-	} else if(key == 27){
+	}  else if(key == 27){
 		system("cls");
 		exit(0);
 		
-	} else
+	}
+	
+	
+	else
 	{
 		printf("\a");
 		Move();
@@ -413,7 +433,7 @@ void Bend()
 {
    int i,j,diff;
    
-   for(i = bend_no;i < length;i--)
+   for(i = bend_no;i >= length && len <length;i--)
 {
 	
 	if (bend[i].x == bend[i-1].x ) 
@@ -426,18 +446,13 @@ void Bend()
 	  	{
 	  		body[len].x = bend[i].x;
 	  		body[len].y = bend[i].y + j;
-		  }
-		 GotoXY(body[len].x,body[len].y);
-		 printf("*");
-		 len++;
-		if(len == length) 
-		{
-			break;
-			
-		}
-		
-	  	
-	  }
+	  		GotoXY(body[len].x,body[len].y);
+		 	printf("*");
+			 len++;
+			if(len == length) break;	
+			}
+			}
+	  
 	  else if(diff > 0)
 	  {
 	  	
@@ -445,23 +460,20 @@ void Bend()
 	  	{
 	  		body[len].x = bend[i].x;
 	  		body[len].y = bend[i].y - j;
-		  }
-		 GotoXY(body[len].x,body[len].y);
-		 printf("*");
-		 len++;
-		if(len == length) 
-		{
+	  		GotoXY(body[len].x,body[len].y);
+			printf("*");
+			len++;
+			if(len == length) 
+			{
 			break;
 			
-		}
+			}
+		  }
+		
 	  	
 	  }
 	  
 	  
-	  
-	 
-	
-	
 	}
 	
 	else if (bend[i].y == bend[i-1].y)
@@ -474,15 +486,16 @@ void Bend()
 	  	{
 	  		body[len].x = bend[i].x +j;
 	  		body[len].y = bend[i].y ;
-		  }
-		 GotoXY(body[len].x,body[len].y);
-		 printf("*");
-		 len++;
+	  		GotoXY(body[len].x,body[len].y);
+		    printf("*");
+		    len++;
 		if(len == length) 
 		{
 			break;
 			
 		}
+		  }
+		
 		
 		}
 		
@@ -493,15 +506,17 @@ void Bend()
 	  		{
 	  		body[len].x = bend[i].x - j;
 	  		body[len].y = bend[i].y ;
-		  }
-		 GotoXY(body[len].x,body[len].y);
-		 printf("*");
-		 len++;
-		if(len == length) 
+	  		GotoXY(body[len].x,body[len].y);
+		    printf("*");
+		    len++;
+		   
+	    if(len == length) 
 		{
 			break;
 			
 		}
+		  }
+		
 		}
 		
 		
@@ -522,7 +537,8 @@ void Delay() //hýz ayarlama fonksiyonu
  Score();
  long double i;
  
- for( i = 0; i < 10000000; i++){
+ 
+ for( i = 0; i < 100; i++){
  };
  
 }
